@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-export async function getImages(keywordOfSearch, pageNumber = 1) {
+export async function getImages(
+    keywordOfSearch,
+    quantityPerPage,
+    pageNumber = 1
+) {
     const config = {
         url: 'https://pixabay.com/api/',
         params: {
@@ -10,7 +14,7 @@ export async function getImages(keywordOfSearch, pageNumber = 1) {
             orientation: 'horizontal',
             safesearch: true,
             page: pageNumber,
-            per_page: 40,
+            per_page: quantityPerPage,
         },
     };
     const response = await axios(config);

@@ -9,23 +9,31 @@ const el = {
     loadMoreBtn: document.querySelector('.load-more'),
 };
 
+let keyword = '';
+let totalHits;
+let page = 1;
+let totalPages = 1;
+const quantityPerPage = 100;
+
 el.searchForm.addEventListener('submit', handlerSearch);
+el.loadMoreBtn.addEventListener('click', handlerLoadMore);
 
 function handlerSearch(e) {
     e.preventDefault();
 
     el.wrapperCards.innerHTML = '';
+    el.loadMoreBtn.hidden = true;
+    page = 1;
 
-    const keyword = e.currentTarget.firstElementChild.value.trim();
+    keyword = e.currentTarget.firstElementChild.value.trim();
 
     if (keyword === '') {
         Notify.warning('Please, enter search request.');
         return;
     }
 
-    getImages(keyword)
+    getImages(keyword, quantityPerPage)
         .then(data => {
-            console.log(data);
             if (!data.hits.length) {
                 Notify.failure(
                     'Sorry, there are no images matching your search query. Please try again.'
@@ -33,10 +41,45 @@ function handlerSearch(e) {
                 el.searchForm.reset();
                 return;
             }
-            console.log(data.hits);
+
+            totalHits = data.totalHits;
+            totalPages = totalHits / quantityPerPage;
+
             createMarkup(data.hits);
+
             el.searchForm.reset();
+
+            if (page >= totalPages) {
+                el.loadMoreBtn.hidden = true;
+                Notify.info(
+                    'We are sorry, but you have reached the end of search results.'
+                );
+                return;
+            }
             el.loadMoreBtn.hidden = false;
+        })
+        .catch(({ code, message }) => {
+            Report.failure(
+                `${message}. Code: ${code} `,
+                'Oops! Something went wrong! Try reloading the page!',
+                'OK'
+            );
+        });
+}
+
+function handlerLoadMore() {
+    page += 1;
+
+    getImages(keyword, quantityPerPage, page)
+        .then(data => {
+            createMarkup(data.hits);
+
+            if (page >= totalPages) {
+                el.loadMoreBtn.hidden = true;
+                Notify.info(
+                    'We are sorry, but you have reached the end of search results.'
+                );
+            }
         })
         .catch(({ code, message }) => {
             Report.failure(
@@ -85,5 +128,3 @@ function createMarkup(arrHits) {
             .join('')
     );
 }
-
-// У відповіді бекенд повертає властивість totalHits - загальна кількість зображень, які відповідають критерію пошуку (для безкоштовного акаунту). Якщо користувач дійшов до кінця колекції, ховай кнопку і виводь повідомлення з текстом "We're sorry, but you've reached the end of search results.".
