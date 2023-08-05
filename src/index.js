@@ -2,22 +2,23 @@ import { getImages } from './api';
 
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { Report } from 'notiflix/build/notiflix-report-aio';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const el = {
     searchForm: document.querySelector('.search-form'),
     wrapperCards: document.querySelector('.gallery'),
     loadMoreBtn: document.querySelector('.load-more'),
 };
-
+const quantityPerPage = 100;
 let keyword = '';
-let totalHits;
 let page = 1;
 let totalPages = 1;
-const quantityPerPage = 100;
+let gallery = null;
 
 el.searchForm.addEventListener('submit', handlerSearch);
 el.loadMoreBtn.addEventListener('click', handlerLoadMore);
-
+console.dir(el.gallery);
 function handlerSearch(e) {
     e.preventDefault();
 
@@ -42,12 +43,18 @@ function handlerSearch(e) {
                 return;
             }
 
-            totalHits = data.totalHits;
-            totalPages = totalHits / quantityPerPage;
+            totalPages = data.totalHits / quantityPerPage;
+
+            Notify.success(`Hooray! We found ${data.totalHits} images.`);
 
             createMarkup(data.hits);
 
             el.searchForm.reset();
+
+            gallery = new SimpleLightbox('.gallery-link', {
+                captionsData: 'alt',
+                captionDelay: 250,
+            });
 
             if (page >= totalPages) {
                 el.loadMoreBtn.hidden = true;
@@ -56,6 +63,7 @@ function handlerSearch(e) {
                 );
                 return;
             }
+
             el.loadMoreBtn.hidden = false;
         })
         .catch(({ code, message }) => {
@@ -74,12 +82,22 @@ function handlerLoadMore() {
         .then(data => {
             createMarkup(data.hits);
 
+            const { height: cardHeight } = document
+                .querySelector('.gallery')
+                .firstElementChild.getBoundingClientRect();
+
+            window.scrollBy({
+                top: cardHeight * 2,
+                behavior: 'smooth',
+            });
+
             if (page >= totalPages) {
                 el.loadMoreBtn.hidden = true;
                 Notify.info(
                     'We are sorry, but you have reached the end of search results.'
                 );
             }
+            gallery.refresh();
         })
         .catch(({ code, message }) => {
             Report.failure(
@@ -91,6 +109,7 @@ function handlerLoadMore() {
 }
 
 function createMarkup(arrHits) {
+    console.log(arrHits);
     el.wrapperCards.insertAdjacentHTML(
         'beforeend',
         arrHits
@@ -103,28 +122,46 @@ function createMarkup(arrHits) {
                     views,
                     comments,
                     downloads,
-                }) => `<div class="photo-card">
-                    <img src="${webformatURL}" alt="${tags}" loading="lazy" width="300"/>
+                }) => `<a href=${largeImageURL} class="gallery-link"><div class="photo-card">
+                    <img src=${webformatURL} alt="${tags}" loading="lazy" width="300"/>
                     <div class="info">
                         <p class="info-item">
-                            <b>Likes:</b>
-                            ${likes}
+                            <b>Likes:</b></br>
+                            <span>${likes}</span>
                         </p>
                         <p class="info-item">
-                            <b>Views:</b>
-                            ${views}
+                            <b>Views:</b></br>
+                            <span>${views}</span>
+                            
                         </p>
                         <p class="info-item">
-                            <b>Comments:</b>
-                            ${comments}
+                            <b>Comments:</b></br>
+                            <span>${comments}</span>
                         </p>
                         <p class="info-item">
-                            <b>Downloads:</b>
-                            ${downloads}
+                            <b>Downloads:</b></br>
+                            <span>${downloads}</span>
                         </p>
                     </div>
-                </div>`
+                </div></a>`
             )
             .join('')
     );
 }
+
+// Прокручування сторінки
+
+// Зробити плавне прокручування сторінки після запиту і відтворення кожної наступної групи зображень. Ось тобі код-підказка, але розберися у ньому самостійно.
+
+// const { height: cardHeight } = document
+//   .querySelector(".gallery")
+//   .firstElementChild.getBoundingClientRect();
+
+// window.scrollBy({
+//   top: cardHeight * 2,
+//   behavior: "smooth",
+// });
+
+// Нескінченний скрол
+
+// Замість кнопки «Load more», можна зробити нескінченне завантаження зображень під час прокручування сторінки. Ми надаємо тобі повну свободу дій в реалізації, можеш використовувати будь-які бібліотеки.
