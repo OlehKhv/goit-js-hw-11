@@ -33,7 +33,6 @@ el.btnUp.addEventListener('click', scrollToTop);
 function handlerSearch(e) {
     e.preventDefault();
 
-    el.wrapperCards.innerHTML = '';
     // el.loadMoreBtn.hidden = true;
 
     observer.unobserve(el.target);
@@ -49,6 +48,8 @@ function handlerSearch(e) {
         Notify.warning('Please, enter search request.');
         return;
     }
+
+    el.wrapperCards.innerHTML = '';
 
     getImages(keyword, quantityPerPage)
         .then(data => {
