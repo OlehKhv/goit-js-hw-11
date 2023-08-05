@@ -33,6 +33,8 @@ function handlerSearch(e) {
     el.wrapperCards.innerHTML = '';
     // el.loadMoreBtn.hidden = true;
 
+    observer.unobserve(el.target);
+
     currentPage = 1;
     keyword = e.currentTarget.firstElementChild.value.trim();
 
@@ -51,7 +53,9 @@ function handlerSearch(e) {
                 Notify.failure(
                     'Sorry, there are no images matching your search query. Please try again.'
                 );
+
                 el.searchForm.reset();
+
                 return;
             }
 
@@ -72,9 +76,13 @@ function handlerSearch(e) {
 
             if (currentPage >= totalPages) {
                 // el.loadMoreBtn.hidden = true;
+
+                observer.unobserve(el.target);
+
                 Notify.info(
                     'We are sorry, but you have reached the end of search results.'
                 );
+
                 return;
             }
 
@@ -126,6 +134,7 @@ function loadMore(entries, observer) {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             currentPage += 1;
+
             getImages(keyword, quantityPerPage, currentPage)
                 .then(data => {
                     createMarkup(data.hits);
@@ -141,6 +150,7 @@ function loadMore(entries, observer) {
 
                     if (currentPage >= totalPages) {
                         observer.unobserve(el.target);
+
                         Notify.info(
                             'We are sorry, but you have reached the end of search results.'
                         );
