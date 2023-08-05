@@ -7,16 +7,31 @@
         <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
-        <form class="search-form" id="search-form">
-            <input
-                type="text"
-                name="searchQuery"
-                autocomplete="off"
-                placeholder="Search images..."
-            />
-            <button type="submit">Search</button>
-        </form>
+        <div class="wrapper-form">
+            <form class="search-form" id="search-form">
+                <input
+                    type="text"
+                    name="searchQuery"
+                    autocomplete="off"
+                    placeholder="Search images..."
+                />
+                <button type="submit" class="btn-form">Search</button>
+                <label>
+                    <b>Select the number of cards per page (range 3-200) </b>
+                    <input
+                        class="quantity"
+                        type="number"
+                        name="quantity"
+                        min="03"
+                        max="200"
+                        value="40"
+                    />
+                </label>
+            </form>
+        </div>
+
         <div class="gallery"></div>
+        <div class="js-guard"></div>
         <button type="button" class="load-more" hidden>Load more</button>
 
         <script src="index.js" type="module"></script>
