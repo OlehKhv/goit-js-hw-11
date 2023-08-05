@@ -11,6 +11,7 @@ const el = {
     loadMoreBtn: document.querySelector('.load-more'),
     inputQuantity: document.querySelector('.quantity'),
     target: document.querySelector('.js-guard'),
+    btnUp: document.querySelector('.btn-up'),
 };
 const options = {
     root: null,
@@ -24,8 +25,10 @@ let currentPage = 1;
 let totalPages = 1;
 let gallery = null;
 
+window.addEventListener('scroll', onScroll);
 el.searchForm.addEventListener('submit', handlerSearch);
 // el.loadMoreBtn.addEventListener('click', handlerLoadMore);
+el.btnUp.addEventListener('click', scrollToTop);
 
 function handlerSearch(e) {
     e.preventDefault();
@@ -206,4 +209,15 @@ function createMarkup(arrHits) {
             )
             .join('')
     );
+}
+
+function onScroll() {
+    el.btnUp.classList.toggle('hidden', window.scrollY > 500);
+}
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+    });
 }
