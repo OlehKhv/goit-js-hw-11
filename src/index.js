@@ -213,7 +213,7 @@ function createMarkup(arrHits) {
 }
 
 function onScroll() {
-    el.btnUp.classList.toggle('hidden', window.scrollY > 500);
+    el.btnUp.classList.toggle('hidden', window.scrollY > 800);
 }
 
 function scrollToTop() {
